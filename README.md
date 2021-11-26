@@ -18,4 +18,23 @@
 
 - `/help`：显示帮助信息
 
+## 截图
+
+### `/website` 指令
+
+![website指令](https://github.com/axumrs/tg-bot/raw/main/screenshot/tb1.png)
+
+### `/logo` 指令
+
+![logo指令](https://github.com/axumrs/tg-bot/raw/main/screenshot/tb2.png)
+
+### `/help` 指令
+
+![help指令](https://github.com/axumrs/tg-bot/raw/main/screenshot/tb3.png)
+
+### 其它内容
+
+![其它指令](https://github.com/axumrs/tg-bot/raw/main/screenshot/tb4.png)
+
+
 本专题代码在[axumrs/tg-bot](https://github.com/axumrs/tg-bot)。
