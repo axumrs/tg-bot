@@ -3,9 +3,12 @@ use dotenv::dotenv;
 
 mod bot;
 mod config;
+mod error;
 mod handler;
 mod model;
 mod types;
+
+type Result<T> = std::result::Result<T, error::AppError>;
 
 #[tokio::main]
 async fn main() {
