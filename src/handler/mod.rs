@@ -9,10 +9,15 @@ pub async fn hook(Json(payload): Json<Update>, Extension(state): Extension<AppSt
     let msg = format!("{:?}", payload);
     tracing::debug!("received: {}", msg);
 
+    let reply_msg = if &payload.message.text == "/website" {
+        "https://axum.rs".to_string()
+    } else {
+        format!("ECHO: {}", payload.message.text)
+    };
     // 回复信息
     let send_data = request::TextMessage {
         chat_id: payload.message.chat.id,
-        text: format!("ECHO: {}", payload.message.text),
+        text: reply_msg,
     };
     let api_addr = format!(
         "https://api.telegram.org/bot{}/{}",
