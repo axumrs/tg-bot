@@ -1,6 +1,11 @@
 use serde::Deserialize;
 pub mod request;
 
+pub enum MsgType {
+    Text(String),
+    Photo(String),
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Update {
     pub update_id: u64,

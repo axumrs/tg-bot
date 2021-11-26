@@ -1,6 +1,12 @@
 use axum::{extract::Extension, Json};
 
-use crate::{bot, error::AppError, model::AppState, types::Update, Result};
+use crate::{
+    bot,
+    error::AppError,
+    model::AppState,
+    types::{MsgType, Update},
+    Result,
+};
 
 mod command;
 
@@ -13,14 +19,21 @@ pub async fn hook(
 
     let msg_text = payload.message.text.unwrap_or("".to_string());
 
-    let reply_msg = match msg_text.as_str() {
-        "/website" => command::website(),
-        _ => echo(msg_text),
+    let msg_type = match msg_text.as_str() {
+        "/website" => MsgType::Text(command::website()),
+        "/logo" => MsgType::Photo(command::logo()),
+        _ => MsgType::Text(echo(msg_text.clone())),
     };
 
-    let res = bot::send_text_message(&state.bot.token, payload.message.chat.id, reply_msg)
-        .await
-        .map_err(log_error(String::from("bot_send_text_message")))?;
+    let res = match msg_type {
+        MsgType::Text(reply_msg) => {
+            bot::send_text_message(&state.bot.token, payload.message.chat.id, reply_msg).await
+        }
+        MsgType::Photo(reply_msg) => {
+            bot::send_photo_message(&state.bot.token, payload.message.chat.id, reply_msg).await
+        }
+    }
+    .map_err(log_error(msg_text));
 
     let result = format!("{:?}", res);
     tracing::debug!("sendMessage: {}", &result);

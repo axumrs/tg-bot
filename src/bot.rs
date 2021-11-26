@@ -25,3 +25,7 @@ pub async fn send_text_message(token: &str, chat_id: u64, text: String) -> Resul
     let data = request::TextMessage { chat_id, text };
     invoke_api(&data, "sendMessage", token).await
 }
+pub async fn send_photo_message(token: &str, chat_id: u64, photo: String) -> Result<Response> {
+    let data = request::PhotoMessage { chat_id, photo };
+    invoke_api(&data, "sendPhoto", token).await
+}
