@@ -2,8 +2,8 @@ use axum::Json;
 
 use crate::types::Update;
 
-pub async fn hook(msg: String) -> String {
-    let msg = format!("recieved: {:?}", msg);
+pub async fn hook(msg: Option<Json<Update>>) -> String {
+    let msg = format!("{:?}", msg);
     tracing::debug!("{}", msg);
     msg
 }
