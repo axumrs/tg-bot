@@ -1,6 +1,7 @@
 use axum::{extract::Extension, Json};
 
 use crate::{
+    bot,
     model::AppState,
     types::{request, Update},
 };
@@ -14,25 +15,7 @@ pub async fn hook(Json(payload): Json<Update>, Extension(state): Extension<AppSt
     } else {
         format!("ECHO: {}", payload.message.text)
     };
-    // 回复信息
-    let send_data = request::TextMessage {
-        chat_id: payload.message.chat.id,
-        text: reply_msg,
-    };
-    let api_addr = format!(
-        "https://api.telegram.org/bot{}/{}",
-        state.bot.token.clone(),
-        "sendMessage"
-    );
-    let res = reqwest::Client::new()
-        .post(&api_addr)
-        .form(&send_data)
-        .send()
-        .await
-        .unwrap()
-        .text()
-        .await
-        .unwrap();
+    let res = bot::send_text_message(&state.bot.token, payload.message.chat.id, reply_msg).await;
     tracing::debug!("sendMessage: {}", &res);
     format!("{:?}", res)
 }

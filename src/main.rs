@@ -1,6 +1,7 @@
 use axum::{routing, AddExtensionLayer, Router};
 use dotenv::dotenv;
 
+mod bot;
 mod config;
 mod handler;
 mod model;
