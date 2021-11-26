@@ -1,6 +1,9 @@
-use axum::{routing, Router};
+use axum::{routing, AddExtensionLayer, Router};
+use dotenv::dotenv;
 
+mod config;
 mod handler;
+mod model;
 mod types;
 
 #[tokio::main]
@@ -10,10 +13,18 @@ async fn main() {
     }
     tracing_subscriber::fmt::init();
 
-    let app = Router::new().route("/", routing::post(handler::hook).get(handler::index));
+    dotenv().ok();
+    let cfg = config::Config::from_env().expect("初始化配置失败");
 
-    tracing::debug!("running");
-    axum::Server::bind(&"127.0.0.1:9527".parse().unwrap())
+    let app = Router::new()
+        .route("/", routing::post(handler::hook).get(handler::index))
+        .layer(AddExtensionLayer::new(model::AppState {
+            bot: cfg.tg_bot.clone(),
+        }));
+
+    tracing::debug!("Web服务运行在：{}", &cfg.web.addr);
+
+    axum::Server::bind(&cfg.web.addr.parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
