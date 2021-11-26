@@ -1,7 +1,15 @@
+use std::convert::Infallible;
+
+use axum::{
+    body::{Bytes, Full},
+    http::StatusCode,
+    response::IntoResponse,
+};
+
 #[derive(Debug)]
 pub enum AppErrorType {
     HttpError,
-    APIError,
+    SerdeError,
 }
 #[derive(Debug)]
 pub struct AppError {
@@ -21,11 +29,9 @@ impl AppError {
     pub fn from_err(cause: impl ToString, error_type: AppErrorType) -> Self {
         Self::new(None, Some(cause.to_string()), error_type)
     }
+    #[allow(unused)]
     pub fn from_str(msg: &str, error_type: AppErrorType) -> Self {
         Self::new(Some(msg.to_string()), None, error_type)
-    }
-    pub fn api_error(msg: &str) -> Self {
-        Self::from_str(msg, AppErrorType::APIError)
     }
 }
 impl std::error::Error for AppError {}
@@ -38,5 +44,20 @@ impl std::fmt::Display for AppError {
 impl From<reqwest::Error> for AppError {
     fn from(err: reqwest::Error) -> Self {
         Self::from_err(err, AppErrorType::HttpError)
+    }
+}
+impl From<serde_json::Error> for AppError {
+    fn from(err: serde_json::Error) -> Self {
+        Self::from_err(err, AppErrorType::SerdeError)
+    }
+}
+
+impl IntoResponse for AppError {
+    type Body = Full<Bytes>;
+    type BodyError = Infallible;
+
+    fn into_response(self) -> axum::http::Response<Self::Body> {
+        let msg = self.message.unwrap_or("有错误发生".to_string());
+        (StatusCode::INTERNAL_SERVER_ERROR, msg).into_response()
     }
 }

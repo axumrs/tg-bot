@@ -1033,6 +1033,7 @@ dependencies = [
  "dotenv",
  "reqwest",
  "serde 1.0.130",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",
