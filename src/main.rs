@@ -1,4 +1,7 @@
-use axum::Router;
+use axum::{routing, Router};
+
+mod handler;
+mod types;
 
 #[tokio::main]
 async fn main() {
@@ -7,8 +10,9 @@ async fn main() {
     }
     tracing_subscriber::fmt::init();
 
-    let app = Router::new();
+    let app = Router::new().route("/", routing::post(handler::hook).get(handler::index));
 
+    tracing::debug!("running");
     axum::Server::bind(&"127.0.0.1:9527".parse().unwrap())
         .serve(app.into_make_service())
         .await
