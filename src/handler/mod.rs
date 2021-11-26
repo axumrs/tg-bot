@@ -22,7 +22,8 @@ pub async fn hook(
     let msg_type = match msg_text.as_str() {
         "/website" => MsgType::Text(command::website()),
         "/logo" => MsgType::Photo(command::logo()),
-        _ => MsgType::Text(echo(msg_text.clone())),
+        "/help" => MsgType::Markdown(command::help(None)),
+        _ => MsgType::Markdown(command::help(Some(&msg_text))),
     };
 
     let res = match msg_type {
@@ -31,6 +32,9 @@ pub async fn hook(
         }
         MsgType::Photo(reply_msg) => {
             bot::send_photo_message(&state.bot.token, payload.message.chat.id, reply_msg).await
+        }
+        MsgType::Markdown(reply_msg) => {
+            bot::send_markdown_message(&state.bot.token, payload.message.chat.id, reply_msg).await
         }
     }
     .map_err(log_error(msg_text));
@@ -42,10 +46,6 @@ pub async fn hook(
 
 pub async fn index() -> &'static str {
     "A telegram bot from axum.rs"
-}
-
-fn echo(msg: String) -> String {
-    format!("ECHO: {}", msg)
 }
 
 fn log_error(handler_name: String) -> Box<dyn Fn(AppError) -> AppError> {

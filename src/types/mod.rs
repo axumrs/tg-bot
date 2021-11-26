@@ -4,6 +4,7 @@ pub mod request;
 pub enum MsgType {
     Text(String),
     Photo(String),
+    Markdown(String),
 }
 
 #[derive(Deserialize, Debug)]
