@@ -1,19 +1,16 @@
 use axum::{extract::Extension, Json};
 
-use crate::{
-    bot,
-    model::AppState,
-    types::{request, Update},
-};
+use crate::{bot, model::AppState, types::Update};
+
+mod command;
 
 pub async fn hook(Json(payload): Json<Update>, Extension(state): Extension<AppState>) -> String {
     let msg = format!("{:?}", payload);
     tracing::debug!("received: {}", msg);
 
-    let reply_msg = if &payload.message.text == "/website" {
-        "https://axum.rs".to_string()
-    } else {
-        format!("ECHO: {}", payload.message.text)
+    let reply_msg = match payload.message.text.as_str() {
+        "/website" => command::website(),
+        _ => echo(payload.message.text),
     };
     let res = bot::send_text_message(&state.bot.token, payload.message.chat.id, reply_msg).await;
     tracing::debug!("sendMessage: {}", &res);
@@ -22,4 +19,8 @@ pub async fn hook(Json(payload): Json<Update>, Extension(state): Extension<AppSt
 
 pub async fn index() -> &'static str {
     "A telegram bot from axum.rs"
+}
+
+fn echo(msg: String) -> String {
+    format!("ECHO: {}", msg)
 }
